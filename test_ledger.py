@@ -25,3 +25,43 @@ except ValueError as e:
 print("Attempting to reserve 40 for request 'C'...")
 new_holds = reserve(limit, spent, holds, request_id="C", amount=40)
 print(f"Success! New Holds dictionary: {new_holds}")
+
+
+
+# test_ledger.py (append this to the bottom of the file)
+from ledger import settle
+
+print("\n--- Stage 3: Settlement Tests ---")
+
+spent = 20
+holds = {"A": 70}
+closed_requests = set()
+
+print(f"Initial State -> Spent: {spent}, Holds: {holds}, Closed: {closed_requests}\n")
+
+# 1. Test missing receipt
+try:
+    print("Attempting settlement with missing receipt...")
+    new_state = settle(spent, holds, closed_requests, "A", actual_cost=0, receipt_missing=True)
+except ValueError as e:
+    print(f"Failed as expected: {e}")
+    print(f"State preserved -> Holds: {holds}\n")
+
+# 2. Test over-ceiling violation
+try:
+    print("Attempting to settle 71 units on a 70 unit hold...")
+    new_state = settle(spent, holds, closed_requests, "A", actual_cost=71)
+except ValueError as e:
+    print(f"Failed as expected: {e}\n")
+
+# 3. Test successful settlement (20 units actual)
+print("Attempting successful settlement of 20 units...")
+spent, holds, closed_requests = settle(spent, holds, closed_requests, "A", actual_cost=20)
+print(f"Success! State Transitioned -> Spent: {spent}, Holds: {holds}, Closed: {closed_requests}\n")
+
+# 4. Test duplicate receipt
+try:
+    print("Attempting to submit receipt for 'A' again...")
+    new_state = settle(spent, holds, closed_requests, "A", actual_cost=20)
+except ValueError as e:
+    print(f"Failed as expected: {e}\n")
