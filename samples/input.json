@@ -1,0 +1,10 @@
+{
+  "request": {
+    "input_tokens": 120,
+    "output_ceiling": 40
+  },
+  "rates": {
+    "input_rate": 2,
+    "output_rate": 5
+  }
+}
